@@ -1,0 +1,4 @@
+- name: Upload file with my value
+  template:
+    dest: /tmp/my-value
+    src: template.j2

@@ -1,0 +1,43 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+
+      - name: Install Ansible
+        run: |
+          python -m pip install --upgrade pip
+          pip install ansible==2.9.10
+
+      - name: Create playbook parameters
+        run: |
+          cat > ./parameters.json <<EOF
+          {
+            "my_value": "foo"
+          }
+          EOF
+
+      - name: Run playbook
+        uses: dawidd6/action-ansible-playbook@v2
+        with:
+          playbook: deploy.yml
+          directory: ./
+          inventory: |
+            [all]
+            localhost ansible_connection=local ansible_python_interpreter=python3
+          options: |
+            --extra-vars '@parameters.json'
+            --verbose
